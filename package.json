@@ -1,0 +1,75 @@
+{
+  "name": "n8n-nodes-surpluslines",
+  "version": "1.0.1",
+  "description": "n8n node for Surplus Lines Tax API by Underwriters Technologies - Calculate surplus lines taxes for all U.S. states. Free calculator at sltax.undtec.com",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "surplus lines",
+    "insurance",
+    "tax calculation",
+    "API",
+    "surplus lines tax",
+    "insurance tax",
+    "Underwriters Technologies",
+    "undtec",
+    "stamping fee",
+    "filing fee"
+  ],
+  "license": "MIT",
+  "homepage": "https://surpluslinesapi.com",
+  "author": {
+    "name": "Underwriters Technologies",
+    "email": "support@undtec.com",
+    "url": "https://undtec.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/undtec/n8n-nodes-surpluslines.git"
+  },
+  "bugs": {
+    "url": "https://github.com/undtec/n8n-nodes-surpluslines/issues"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://surpluslinesapi.com"
+  },
+  "engines": {
+    "node": ">=18.10",
+    "pnpm": ">=9.1"
+  },
+  "packageManager": "pnpm@9.1.4",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc && gulp build:icons",
+    "dev": "tsc --watch",
+    "format": "prettier nodes credentials --write",
+    "lint": "eslint nodes credentials package.json",
+    "lintfix": "eslint nodes credentials package.json --fix",
+    "prepublishOnly": "pnpm build"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/SurplusLinesApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/SurplusLinesApi/SurplusLinesApi.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "eslint": "^8.56.0",
+    "gulp": "^4.0.2",
+    "n8n-workflow": "^1.22.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
