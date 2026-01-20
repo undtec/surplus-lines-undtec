@@ -46,9 +46,22 @@ export class SurplusLinesApi implements INodeType {
 						description: 'Calculate surplus lines tax for a state and premium',
 						action: 'Calculate surplus lines tax',
 					},
+					{
+						name: 'Get Rates',
+						value: 'getRates',
+						description: 'Get current tax rates for all states',
+						action: 'Get current tax rates',
+					},
+					{
+						name: 'Get States',
+						value: 'getStates',
+						description: 'Get list of all supported states',
+						action: 'Get list of states',
+					},
 				],
 				default: 'calculate',
 			},
+			// Calculate Tax parameters
 			{
 				displayName: 'State',
 				name: 'state',
@@ -207,6 +220,20 @@ export class SurplusLinesApi implements INodeType {
 					},
 				],
 			},
+			// Get Rates parameters
+			{
+				displayName: 'State Filter',
+				name: 'stateFilter',
+				type: 'string',
+				displayOptions: {
+					show: {
+						operation: ['getRates'],
+					},
+				},
+				default: '',
+				placeholder: 'e.g., Texas',
+				description: 'Optional: Filter rates for a specific state. Leave empty for all states.',
+			},
 		],
 	};
 
@@ -261,6 +288,43 @@ export class SurplusLinesApi implements INodeType {
 							method: 'POST',
 							url: 'https://api.surpluslinesapi.com/v1/calculate',
 							body,
+							json: true,
+						},
+					);
+
+					returnData.push({
+						json: response as IDataObject,
+						pairedItem: { item: i },
+					});
+				} else if (operation === 'getRates') {
+					const stateFilter = this.getNodeParameter('stateFilter', i, '') as string;
+
+					let url = 'https://api.surpluslinesapi.com/v1/rates';
+					if (stateFilter) {
+						url += `?state=${encodeURIComponent(stateFilter)}`;
+					}
+
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'surplusLinesApi',
+						{
+							method: 'GET',
+							url,
+							json: true,
+						},
+					);
+
+					returnData.push({
+						json: response as IDataObject,
+						pairedItem: { item: i },
+					});
+				} else if (operation === 'getStates') {
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'surplusLinesApi',
+						{
+							method: 'GET',
+							url: 'https://api.surpluslinesapi.com/v1/states',
 							json: true,
 						},
 					);
