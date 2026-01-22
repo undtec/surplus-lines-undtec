@@ -65,7 +65,7 @@ Calculate surplus lines tax for a specific state and premium amount.
 - **Year**: Tax year (affects Iowa rates 2024-2027)
 - **New Business**: New/renewal policy flag (affects Oregon $10 fee)
 
-## Example Response
+**Example Response:**
 
 ```json
 {
@@ -80,6 +80,75 @@ Calculate surplus lines tax for a specific state and premium amount.
   },
   "total_tax": 503.00,
   "total_due": 10503.00
+}
+```
+
+### Get Rates
+
+Get current tax rates for all states or a specific state.
+
+**Optional Parameters:**
+- **State Filter**: Filter rates for a specific state (leave empty for all states)
+
+**Example Response (All States):**
+
+```json
+{
+  "success": true,
+  "count": 53,
+  "data": [
+    {
+      "state": "Alabama",
+      "tax_rate": 0.0375,
+      "stamping_fee_rate": 0.002,
+      "notes": "Rounded to nearest penny"
+    },
+    {
+      "state": "Texas",
+      "tax_rate": 0.0485,
+      "stamping_fee_rate": 0.0018,
+      "notes": "State-specific rounding"
+    }
+    // ... 51 more states
+  ]
+}
+```
+
+**Example Response (Single State):**
+
+```json
+{
+  "success": true,
+  "count": 1,
+  "data": [
+    {
+      "state": "Texas",
+      "tax_rate": 0.0485,
+      "stamping_fee_rate": 0.0018,
+      "notes": "State-specific rounding"
+    }
+  ]
+}
+```
+
+### Get States
+
+Get a list of all supported states/jurisdictions.
+
+**No Parameters Required**
+
+**Example Response:**
+
+```json
+{
+  "success": true,
+  "count": 53,
+  "data": [
+    "Alabama",
+    "Alaska",
+    "Arizona",
+    // ... 50 more states/territories
+  ]
 }
 ```
 

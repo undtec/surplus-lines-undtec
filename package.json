@@ -1,5 +1,5 @@
 {
-  "name": "n8n-nodes-surpluslines",
+  "name": "n8n-nodes-surplus-lines-undtec",
   "version": "1.0.1",
   "description": "n8n node for Surplus Lines Tax API by Underwriters Technologies - Calculate surplus lines taxes for all U.S. states. Free calculator at sltax.undtec.com",
   "keywords": [
@@ -25,10 +25,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/undtec/n8n-nodes-surpluslines.git"
+    "url": "https://github.com/undtec/surplus-lines-undtec.git"
   },
   "bugs": {
-    "url": "https://github.com/undtec/n8n-nodes-surpluslines/issues"
+    "url": "https://github.com/undtec/surplus-lines-undtec/issues"
   },
   "funding": {
     "type": "individual",
