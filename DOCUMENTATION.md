@@ -1,9 +1,9 @@
-# n8n-nodes-surpluslines - Complete Documentation
+# n8n-nodes-surplus-lines-undtec - Complete Documentation
 
 **Created:** December 10, 2025
 **Published to npm:** December 10, 2025
 **Version:** 1.0.0
-**npm Package:** https://www.npmjs.com/package/n8n-nodes-surpluslines
+**npm Package:** https://www.npmjs.com/package/n8n-nodes-surplus-lines-undtec
 
 ---
 
@@ -30,7 +30,7 @@ This is a custom n8n community node that integrates with the **Surplus Lines Tax
 
 | Resource | URL |
 |----------|-----|
-| npm Package | https://www.npmjs.com/package/n8n-nodes-surpluslines |
+| npm Package | https://www.npmjs.com/package/n8n-nodes-surplus-lines-undtec |
 | API Service | https://surpluslinesapi.com |
 | API Documentation | https://surpluslinesapi.com/docs/ |
 | Free Calculator | https://sltax.undtec.com |
@@ -50,7 +50,7 @@ The node includes promotional branding for Underwriters Technologies throughout:
 ## Package Structure
 
 ```
-n8n-nodes/n8n-nodes-surpluslines/
+n8n-nodes/n8n-nodes-surplus-lines-undtec/
 ├── credentials/
 │   └── SurplusLinesApi.credentials.ts    # API key credential definition
 ├── nodes/
@@ -85,7 +85,7 @@ Defines the npm package with n8n-specific configuration:
 
 ```json
 {
-  "name": "n8n-nodes-surpluslines",
+  "name": "n8n-nodes-surplus-lines-undtec",
   "version": "1.0.0",
   "n8n": {
     "n8nNodesApiVersion": 1,
@@ -147,7 +147,7 @@ export class SurplusLinesApi implements ICredentialType {
 
 ### 3. SurplusLinesApi.node.ts
 
-Main node implementation with one operation: **Calculate Tax**
+Main node implementation with two operations: **Calculate Tax** and **Get Historical Rates**
 
 **Required Parameters:**
 | Parameter | Type | Description |
@@ -166,6 +166,12 @@ Main node implementation with one operation: **Calculate Tax**
 | workers_comp | boolean | Workers compensation | VA (exempt) |
 | year | number | Tax year | Iowa rates 2024-2027 |
 | new_business | boolean | New/renewal policy | Oregon $10 fee |
+
+**Get Historical Rates Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| state | dropdown | Yes | State to look up rates for |
+| date | string | Yes | Date in YYYY-MM-DD format |
 
 ### 4. surpluslines.svg
 
@@ -219,10 +225,11 @@ The node implements `continueOnFail()` support:
 
 ## API Integration
 
-### Endpoint Used
+### Endpoints Used
 
 ```
 POST https://api.surpluslinesapi.com/v1/calculate
+GET  https://api.surpluslinesapi.com/v1/historical-rates
 ```
 
 ### Request Format
@@ -289,7 +296,7 @@ POST https://api.surpluslinesapi.com/v1/calculate
 1. Open n8n web interface
 2. Go to **Settings** → **Community Nodes**
 3. Click **Install a community node**
-4. Enter: `n8n-nodes-surpluslines`
+4. Enter: `n8n-nodes-surplus-lines-undtec`
 5. Accept the risk warning
 6. Click **Install**
 7. n8n restarts automatically
@@ -298,7 +305,7 @@ POST https://api.surpluslinesapi.com/v1/calculate
 
 ```bash
 cd ~/.n8n/custom
-npm install n8n-nodes-surpluslines
+npm install n8n-nodes-surplus-lines-undtec
 # Restart n8n
 ```
 
@@ -309,7 +316,7 @@ npm install n8n-nodes-surpluslines
 docker ps | grep n8n
 
 # Install inside container
-docker exec -it <container_id> npm install n8n-nodes-surpluslines
+docker exec -it <container_id> npm install n8n-nodes-surplus-lines-undtec
 
 # Restart container
 docker restart <container_id>
@@ -322,7 +329,7 @@ Add to docker-compose.yml:
 services:
   n8n:
     environment:
-      - N8N_CUSTOM_EXTENSIONS=n8n-nodes-surpluslines
+      - N8N_CUSTOM_EXTENSIONS=n8n-nodes-surplus-lines-undtec
 ```
 
 ---
@@ -380,7 +387,7 @@ Response Response
 
 ```bash
 # Navigate to package directory
-cd "/Volumes/Under_mini/CLAUDE_CAN_USE/surpluslinestax_www/n8n-nodes/n8n-nodes-surpluslines"
+cd "/Volumes/Under_mini/CLAUDE_CAN_USE/surpluslinestax_www/n8n-nodes/n8n-nodes-surplus-lines-undtec"
 
 # Install dependencies
 pnpm install
@@ -425,6 +432,10 @@ To add operations (e.g., "Get States", "Validate"):
 3. Add logic in `execute()` method
 4. Rebuild and publish
 
+**Current Operations:**
+- Calculate Tax (POST /v1/calculate)
+- Get Historical Rates (GET /v1/historical-rates)
+
 ### Updating API Endpoints
 
 If the API changes:
@@ -441,7 +452,7 @@ If the API changes:
 
 - Ensure n8n was restarted after installation
 - Check n8n logs: `docker logs <container_id>`
-- Verify package installed: `npm list n8n-nodes-surpluslines`
+- Verify package installed: `npm list n8n-nodes-surplus-lines-undtec`
 
 ### Credential Test Fails
 
@@ -479,12 +490,18 @@ pnpm build
 | API Support | support@undtec.com |
 | API Documentation | https://surpluslinesapi.com/docs/ |
 | n8n Community Nodes Docs | https://docs.n8n.io/integrations/community-nodes/ |
-| npm Package | https://www.npmjs.com/package/n8n-nodes-surpluslines |
+| npm Package | https://www.npmjs.com/package/n8n-nodes-surplus-lines-undtec |
 | Free Calculator | https://sltax.undtec.com |
 
 ---
 
 ## Changelog
+
+### v1.1.0 (January 29, 2026)
+
+- Added Get Historical Rates operation
+- Look up tax rates effective on any specific date
+- Access historical rate data for auditing and policy verification
 
 ### v1.0.0 (December 10, 2025)
 

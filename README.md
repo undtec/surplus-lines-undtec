@@ -1,4 +1,4 @@
-# n8n-nodes-surpluslines
+# n8n-nodes-surplus-lines-undtec
 
 This is an n8n community node for the [Surplus Lines Tax API](https://surpluslinesapi.com) by [Underwriters Technologies](https://undtec.com).
 
@@ -25,14 +25,14 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 ### npm
 
 ```bash
-npm install n8n-nodes-surpluslines
+npm install n8n-nodes-surplus-lines-undtec
 ```
 
 ### n8n Community Nodes
 
 1. Go to **Settings > Community Nodes**
 2. Select **Install**
-3. Enter `n8n-nodes-surpluslines` and confirm
+3. Enter `n8n-nodes-surplus-lines-undtec` and confirm
 
 ## Credentials
 

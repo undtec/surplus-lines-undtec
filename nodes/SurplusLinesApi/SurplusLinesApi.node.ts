@@ -58,6 +58,12 @@ export class SurplusLinesApi implements INodeType {
 						description: 'Get list of all supported states',
 						action: 'Get list of states',
 					},
+					{
+						name: 'Get Historical Rates',
+						value: 'getHistoricalRates',
+						description: 'Get historical tax rates for a specific state and date',
+						action: 'Get historical tax rates',
+					},
 				],
 				default: 'calculate',
 			},
@@ -234,6 +240,89 @@ export class SurplusLinesApi implements INodeType {
 				placeholder: 'e.g., Texas',
 				description: 'Optional: Filter rates for a specific state. Leave empty for all states.',
 			},
+			// Get Historical Rates parameters
+			{
+				displayName: 'State',
+				name: 'historicalState',
+				type: 'options',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: ['getHistoricalRates'],
+					},
+				},
+				options: [
+					{ name: 'Alabama', value: 'Alabama' },
+					{ name: 'Alaska', value: 'Alaska' },
+					{ name: 'Arizona', value: 'Arizona' },
+					{ name: 'Arkansas', value: 'Arkansas' },
+					{ name: 'California', value: 'California' },
+					{ name: 'Colorado', value: 'Colorado' },
+					{ name: 'Connecticut', value: 'Connecticut' },
+					{ name: 'Delaware', value: 'Delaware' },
+					{ name: 'District of Columbia', value: 'District of Columbia' },
+					{ name: 'Florida', value: 'Florida' },
+					{ name: 'Georgia', value: 'Georgia' },
+					{ name: 'Hawaii', value: 'Hawaii' },
+					{ name: 'Idaho', value: 'Idaho' },
+					{ name: 'Illinois', value: 'Illinois' },
+					{ name: 'Indiana', value: 'Indiana' },
+					{ name: 'Iowa', value: 'Iowa' },
+					{ name: 'Kansas', value: 'Kansas' },
+					{ name: 'Kentucky', value: 'Kentucky' },
+					{ name: 'Louisiana', value: 'Louisiana' },
+					{ name: 'Maine', value: 'Maine' },
+					{ name: 'Maryland', value: 'Maryland' },
+					{ name: 'Massachusetts', value: 'Massachusetts' },
+					{ name: 'Michigan', value: 'Michigan' },
+					{ name: 'Minnesota', value: 'Minnesota' },
+					{ name: 'Mississippi', value: 'Mississippi' },
+					{ name: 'Missouri', value: 'Missouri' },
+					{ name: 'Montana', value: 'Montana' },
+					{ name: 'Nebraska', value: 'Nebraska' },
+					{ name: 'Nevada', value: 'Nevada' },
+					{ name: 'New Hampshire', value: 'New Hampshire' },
+					{ name: 'New Jersey', value: 'New Jersey' },
+					{ name: 'New Mexico', value: 'New Mexico' },
+					{ name: 'New York', value: 'New York' },
+					{ name: 'North Carolina', value: 'North Carolina' },
+					{ name: 'North Dakota', value: 'North Dakota' },
+					{ name: 'Ohio', value: 'Ohio' },
+					{ name: 'Oklahoma', value: 'Oklahoma' },
+					{ name: 'Oregon', value: 'Oregon' },
+					{ name: 'Pennsylvania', value: 'Pennsylvania' },
+					{ name: 'Puerto Rico', value: 'Puerto Rico' },
+					{ name: 'Rhode Island', value: 'Rhode Island' },
+					{ name: 'South Carolina', value: 'South Carolina' },
+					{ name: 'South Dakota', value: 'South Dakota' },
+					{ name: 'Tennessee', value: 'Tennessee' },
+					{ name: 'Texas', value: 'Texas' },
+					{ name: 'Utah', value: 'Utah' },
+					{ name: 'Vermont', value: 'Vermont' },
+					{ name: 'Virgin Islands', value: 'Virgin Islands' },
+					{ name: 'Virginia', value: 'Virginia' },
+					{ name: 'Washington', value: 'Washington' },
+					{ name: 'West Virginia', value: 'West Virginia' },
+					{ name: 'Wisconsin', value: 'Wisconsin' },
+					{ name: 'Wyoming', value: 'Wyoming' },
+				],
+				default: 'Texas',
+				description: 'The U.S. state for historical rate lookup',
+			},
+			{
+				displayName: 'Date',
+				name: 'historicalDate',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: ['getHistoricalRates'],
+					},
+				},
+				default: '',
+				placeholder: 'YYYY-MM-DD',
+				description: 'The date for which to retrieve historical rates (format: YYYY-MM-DD)',
+			},
 		],
 	};
 
@@ -325,6 +414,26 @@ export class SurplusLinesApi implements INodeType {
 						{
 							method: 'GET',
 							url: 'https://api.surpluslinesapi.com/v1/states',
+							json: true,
+						},
+					);
+
+					returnData.push({
+						json: response as IDataObject,
+						pairedItem: { item: i },
+					});
+				} else if (operation === 'getHistoricalRates') {
+					const state = this.getNodeParameter('historicalState', i) as string;
+					const date = this.getNodeParameter('historicalDate', i) as string;
+
+					const url = `https://api.surpluslinesapi.com/v1/historical-rates?state=${encodeURIComponent(state)}&date=${encodeURIComponent(date)}`;
+
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'surplusLinesApi',
+						{
+							method: 'GET',
+							url,
 							json: true,
 						},
 					);
