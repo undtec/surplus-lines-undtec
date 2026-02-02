@@ -152,6 +152,38 @@ Get a list of all supported states/jurisdictions.
 }
 ```
 
+### Get Historical Rates
+
+Get the tax rate that was in effect for a specific state on a given date. Useful for auditing, compliance verification, and analyzing past policy calculations.
+
+**Required Parameters:**
+- **State**: Select from all 50 U.S. states plus DC, Puerto Rico, and Virgin Islands
+
+**Optional Parameters:**
+- **Date**: Date in YYYY-MM-DD format. Defaults to today's date if not provided.
+
+**Example Response:**
+
+```json
+{
+  "success": true,
+  "state": "Iowa",
+  "query_date": "2025-06-15",
+  "rate": {
+    "tax_rate": 0.01,
+    "stamping_fee": 0.002,
+    "filing_fee": null,
+    "service_fee": null,
+    "surcharge": null,
+    "regulatory_fee": null,
+    "effective_from": "2024-01-01",
+    "effective_to": "2025-12-31",
+    "legislative_source": "Iowa Code § 515.138",
+    "confidence": "high"
+  }
+}
+```
+
 ## Why Use Surplus Lines API?
 
 - **Accurate**: State-specific rounding rules and current tax rates

@@ -171,7 +171,7 @@ Main node implementation with two operations: **Calculate Tax** and **Get Histor
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | state | dropdown | Yes | State to look up rates for |
-| date | string | Yes | Date in YYYY-MM-DD format |
+| date | string | No | Date in YYYY-MM-DD format. Defaults to today's date if not provided. |
 
 ### 4. surpluslines.svg
 
