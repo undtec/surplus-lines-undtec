@@ -6,6 +6,63 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 
+// State options used in multiple places
+const stateOptions = [
+	{ name: 'Alabama', value: 'Alabama' },
+	{ name: 'Alaska', value: 'Alaska' },
+	{ name: 'Arizona', value: 'Arizona' },
+	{ name: 'Arkansas', value: 'Arkansas' },
+	{ name: 'California', value: 'California' },
+	{ name: 'Colorado', value: 'Colorado' },
+	{ name: 'Connecticut', value: 'Connecticut' },
+	{ name: 'Delaware', value: 'Delaware' },
+	{ name: 'District of Columbia', value: 'District of Columbia' },
+	{ name: 'Florida', value: 'Florida' },
+	{ name: 'Georgia', value: 'Georgia' },
+	{ name: 'Hawaii', value: 'Hawaii' },
+	{ name: 'Idaho', value: 'Idaho' },
+	{ name: 'Illinois', value: 'Illinois' },
+	{ name: 'Indiana', value: 'Indiana' },
+	{ name: 'Iowa', value: 'Iowa' },
+	{ name: 'Kansas', value: 'Kansas' },
+	{ name: 'Kentucky', value: 'Kentucky' },
+	{ name: 'Louisiana', value: 'Louisiana' },
+	{ name: 'Maine', value: 'Maine' },
+	{ name: 'Maryland', value: 'Maryland' },
+	{ name: 'Massachusetts', value: 'Massachusetts' },
+	{ name: 'Michigan', value: 'Michigan' },
+	{ name: 'Minnesota', value: 'Minnesota' },
+	{ name: 'Mississippi', value: 'Mississippi' },
+	{ name: 'Missouri', value: 'Missouri' },
+	{ name: 'Montana', value: 'Montana' },
+	{ name: 'Nebraska', value: 'Nebraska' },
+	{ name: 'Nevada', value: 'Nevada' },
+	{ name: 'New Hampshire', value: 'New Hampshire' },
+	{ name: 'New Jersey', value: 'New Jersey' },
+	{ name: 'New Mexico', value: 'New Mexico' },
+	{ name: 'New York', value: 'New York' },
+	{ name: 'North Carolina', value: 'North Carolina' },
+	{ name: 'North Dakota', value: 'North Dakota' },
+	{ name: 'Ohio', value: 'Ohio' },
+	{ name: 'Oklahoma', value: 'Oklahoma' },
+	{ name: 'Oregon', value: 'Oregon' },
+	{ name: 'Pennsylvania', value: 'Pennsylvania' },
+	{ name: 'Puerto Rico', value: 'Puerto Rico' },
+	{ name: 'Rhode Island', value: 'Rhode Island' },
+	{ name: 'South Carolina', value: 'South Carolina' },
+	{ name: 'South Dakota', value: 'South Dakota' },
+	{ name: 'Tennessee', value: 'Tennessee' },
+	{ name: 'Texas', value: 'Texas' },
+	{ name: 'Utah', value: 'Utah' },
+	{ name: 'Vermont', value: 'Vermont' },
+	{ name: 'Virgin Islands', value: 'Virgin Islands' },
+	{ name: 'Virginia', value: 'Virginia' },
+	{ name: 'Washington', value: 'Washington' },
+	{ name: 'West Virginia', value: 'West Virginia' },
+	{ name: 'Wisconsin', value: 'Wisconsin' },
+	{ name: 'Wyoming', value: 'Wyoming' },
+];
+
 export class SurplusLinesApi implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Surplus Lines API',
@@ -13,61 +70,118 @@ export class SurplusLinesApi implements INodeType {
 		icon: 'file:surpluslines.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: '={{$parameter["operation"]}}',
+		subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
 		description: 'Calculate surplus lines taxes for all U.S. states by Underwriters Technologies. Free calculator: sltax.undtec.com',
 		defaults: {
 			name: 'Surplus Lines API',
 		},
 		inputs: ['main'],
 		outputs: ['main'],
+		usableAsTool: true,
 		credentials: [
 			{
 				name: 'surplusLinesApi',
 				required: true,
 			},
 		],
-		requestDefaults: {
-			baseURL: 'https://api.surpluslinesapi.com',
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-			},
-		},
 		properties: [
+			// Resource selector
+			{
+				displayName: 'Resource',
+				name: 'resource',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{
+						name: 'Tax',
+						value: 'tax',
+						description: 'Calculate surplus lines taxes',
+					},
+					{
+						name: 'Rate',
+						value: 'rate',
+						description: 'Get tax rate information',
+					},
+					{
+						name: 'State',
+						value: 'state',
+						description: 'Get supported states',
+					},
+				],
+				default: 'tax',
+			},
+			// Operations for Tax resource
 			{
 				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['tax'],
+					},
+				},
 				options: [
 					{
-						name: 'Calculate Tax',
+						name: 'Calculate',
 						value: 'calculate',
 						description: 'Calculate surplus lines tax for a state and premium',
 						action: 'Calculate surplus lines tax',
 					},
+				],
+				default: 'calculate',
+			},
+			// Operations for Rate resource
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['rate'],
+					},
+				},
+				options: [
 					{
-						name: 'Get Rates',
-						value: 'getRates',
-						description: 'Get current tax rates for all states',
+						name: 'Get Current',
+						value: 'getCurrent',
+						description: 'Get current tax rates for all states or a specific state',
 						action: 'Get current tax rates',
 					},
 					{
-						name: 'Get States',
-						value: 'getStates',
-						description: 'Get list of all supported states',
-						action: 'Get list of states',
-					},
-					{
-						name: 'Get Historical Rates',
-						value: 'getHistoricalRates',
+						name: 'Get Historical',
+						value: 'getHistorical',
 						description: 'Get historical tax rates for a specific state and date',
 						action: 'Get historical tax rates',
 					},
 				],
-				default: 'calculate',
+				default: 'getCurrent',
 			},
-			// Calculate Tax parameters
+			// Operations for State resource
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['state'],
+					},
+				},
+				options: [
+					{
+						name: 'Get All',
+						value: 'getAll',
+						description: 'Get list of all supported states',
+						action: 'Get all supported states',
+					},
+				],
+				default: 'getAll',
+			},
+			// ============================================
+			// Tax > Calculate parameters
+			// ============================================
 			{
 				displayName: 'State',
 				name: 'state',
@@ -75,64 +189,11 @@ export class SurplusLinesApi implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
+						resource: ['tax'],
 						operation: ['calculate'],
 					},
 				},
-				options: [
-					{ name: 'Alabama', value: 'Alabama' },
-					{ name: 'Alaska', value: 'Alaska' },
-					{ name: 'Arizona', value: 'Arizona' },
-					{ name: 'Arkansas', value: 'Arkansas' },
-					{ name: 'California', value: 'California' },
-					{ name: 'Colorado', value: 'Colorado' },
-					{ name: 'Connecticut', value: 'Connecticut' },
-					{ name: 'Delaware', value: 'Delaware' },
-					{ name: 'District of Columbia', value: 'District of Columbia' },
-					{ name: 'Florida', value: 'Florida' },
-					{ name: 'Georgia', value: 'Georgia' },
-					{ name: 'Hawaii', value: 'Hawaii' },
-					{ name: 'Idaho', value: 'Idaho' },
-					{ name: 'Illinois', value: 'Illinois' },
-					{ name: 'Indiana', value: 'Indiana' },
-					{ name: 'Iowa', value: 'Iowa' },
-					{ name: 'Kansas', value: 'Kansas' },
-					{ name: 'Kentucky', value: 'Kentucky' },
-					{ name: 'Louisiana', value: 'Louisiana' },
-					{ name: 'Maine', value: 'Maine' },
-					{ name: 'Maryland', value: 'Maryland' },
-					{ name: 'Massachusetts', value: 'Massachusetts' },
-					{ name: 'Michigan', value: 'Michigan' },
-					{ name: 'Minnesota', value: 'Minnesota' },
-					{ name: 'Mississippi', value: 'Mississippi' },
-					{ name: 'Missouri', value: 'Missouri' },
-					{ name: 'Montana', value: 'Montana' },
-					{ name: 'Nebraska', value: 'Nebraska' },
-					{ name: 'Nevada', value: 'Nevada' },
-					{ name: 'New Hampshire', value: 'New Hampshire' },
-					{ name: 'New Jersey', value: 'New Jersey' },
-					{ name: 'New Mexico', value: 'New Mexico' },
-					{ name: 'New York', value: 'New York' },
-					{ name: 'North Carolina', value: 'North Carolina' },
-					{ name: 'North Dakota', value: 'North Dakota' },
-					{ name: 'Ohio', value: 'Ohio' },
-					{ name: 'Oklahoma', value: 'Oklahoma' },
-					{ name: 'Oregon', value: 'Oregon' },
-					{ name: 'Pennsylvania', value: 'Pennsylvania' },
-					{ name: 'Puerto Rico', value: 'Puerto Rico' },
-					{ name: 'Rhode Island', value: 'Rhode Island' },
-					{ name: 'South Carolina', value: 'South Carolina' },
-					{ name: 'South Dakota', value: 'South Dakota' },
-					{ name: 'Tennessee', value: 'Tennessee' },
-					{ name: 'Texas', value: 'Texas' },
-					{ name: 'Utah', value: 'Utah' },
-					{ name: 'Vermont', value: 'Vermont' },
-					{ name: 'Virgin Islands', value: 'Virgin Islands' },
-					{ name: 'Virginia', value: 'Virginia' },
-					{ name: 'Washington', value: 'Washington' },
-					{ name: 'West Virginia', value: 'West Virginia' },
-					{ name: 'Wisconsin', value: 'Wisconsin' },
-					{ name: 'Wyoming', value: 'Wyoming' },
-				],
+				options: stateOptions,
 				default: 'Texas',
 				description: 'The U.S. state for tax calculation',
 			},
@@ -143,6 +204,7 @@ export class SurplusLinesApi implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
+						resource: ['tax'],
 						operation: ['calculate'],
 					},
 				},
@@ -160,6 +222,7 @@ export class SurplusLinesApi implements INodeType {
 				default: {},
 				displayOptions: {
 					show: {
+						resource: ['tax'],
 						operation: ['calculate'],
 					},
 				},
@@ -226,21 +289,26 @@ export class SurplusLinesApi implements INodeType {
 					},
 				],
 			},
-			// Get Rates parameters
+			// ============================================
+			// Rate > Get Current parameters
+			// ============================================
 			{
 				displayName: 'State Filter',
 				name: 'stateFilter',
 				type: 'string',
 				displayOptions: {
 					show: {
-						operation: ['getRates'],
+						resource: ['rate'],
+						operation: ['getCurrent'],
 					},
 				},
 				default: '',
 				placeholder: 'e.g., Texas',
 				description: 'Optional: Filter rates for a specific state. Leave empty for all states.',
 			},
-			// Get Historical Rates parameters
+			// ============================================
+			// Rate > Get Historical parameters
+			// ============================================
 			{
 				displayName: 'State',
 				name: 'historicalState',
@@ -248,64 +316,11 @@ export class SurplusLinesApi implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['getHistoricalRates'],
+						resource: ['rate'],
+						operation: ['getHistorical'],
 					},
 				},
-				options: [
-					{ name: 'Alabama', value: 'Alabama' },
-					{ name: 'Alaska', value: 'Alaska' },
-					{ name: 'Arizona', value: 'Arizona' },
-					{ name: 'Arkansas', value: 'Arkansas' },
-					{ name: 'California', value: 'California' },
-					{ name: 'Colorado', value: 'Colorado' },
-					{ name: 'Connecticut', value: 'Connecticut' },
-					{ name: 'Delaware', value: 'Delaware' },
-					{ name: 'District of Columbia', value: 'District of Columbia' },
-					{ name: 'Florida', value: 'Florida' },
-					{ name: 'Georgia', value: 'Georgia' },
-					{ name: 'Hawaii', value: 'Hawaii' },
-					{ name: 'Idaho', value: 'Idaho' },
-					{ name: 'Illinois', value: 'Illinois' },
-					{ name: 'Indiana', value: 'Indiana' },
-					{ name: 'Iowa', value: 'Iowa' },
-					{ name: 'Kansas', value: 'Kansas' },
-					{ name: 'Kentucky', value: 'Kentucky' },
-					{ name: 'Louisiana', value: 'Louisiana' },
-					{ name: 'Maine', value: 'Maine' },
-					{ name: 'Maryland', value: 'Maryland' },
-					{ name: 'Massachusetts', value: 'Massachusetts' },
-					{ name: 'Michigan', value: 'Michigan' },
-					{ name: 'Minnesota', value: 'Minnesota' },
-					{ name: 'Mississippi', value: 'Mississippi' },
-					{ name: 'Missouri', value: 'Missouri' },
-					{ name: 'Montana', value: 'Montana' },
-					{ name: 'Nebraska', value: 'Nebraska' },
-					{ name: 'Nevada', value: 'Nevada' },
-					{ name: 'New Hampshire', value: 'New Hampshire' },
-					{ name: 'New Jersey', value: 'New Jersey' },
-					{ name: 'New Mexico', value: 'New Mexico' },
-					{ name: 'New York', value: 'New York' },
-					{ name: 'North Carolina', value: 'North Carolina' },
-					{ name: 'North Dakota', value: 'North Dakota' },
-					{ name: 'Ohio', value: 'Ohio' },
-					{ name: 'Oklahoma', value: 'Oklahoma' },
-					{ name: 'Oregon', value: 'Oregon' },
-					{ name: 'Pennsylvania', value: 'Pennsylvania' },
-					{ name: 'Puerto Rico', value: 'Puerto Rico' },
-					{ name: 'Rhode Island', value: 'Rhode Island' },
-					{ name: 'South Carolina', value: 'South Carolina' },
-					{ name: 'South Dakota', value: 'South Dakota' },
-					{ name: 'Tennessee', value: 'Tennessee' },
-					{ name: 'Texas', value: 'Texas' },
-					{ name: 'Utah', value: 'Utah' },
-					{ name: 'Vermont', value: 'Vermont' },
-					{ name: 'Virgin Islands', value: 'Virgin Islands' },
-					{ name: 'Virginia', value: 'Virginia' },
-					{ name: 'Washington', value: 'Washington' },
-					{ name: 'West Virginia', value: 'West Virginia' },
-					{ name: 'Wisconsin', value: 'Wisconsin' },
-					{ name: 'Wyoming', value: 'Wyoming' },
-				],
+				options: stateOptions,
 				default: 'Texas',
 				description: 'The U.S. state for historical rate lookup',
 			},
@@ -316,7 +331,8 @@ export class SurplusLinesApi implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['getHistoricalRates'],
+						resource: ['rate'],
+						operation: ['getHistorical'],
 					},
 				},
 				default: '',
@@ -332,116 +348,130 @@ export class SurplusLinesApi implements INodeType {
 
 		for (let i = 0; i < items.length; i++) {
 			try {
+				const resource = this.getNodeParameter('resource', i) as string;
 				const operation = this.getNodeParameter('operation', i) as string;
 
-				if (operation === 'calculate') {
-					const state = this.getNodeParameter('state', i) as string;
-					const premium = this.getNodeParameter('premium', i) as number;
-					const additionalOptions = this.getNodeParameter('additionalOptions', i) as IDataObject;
+				// Tax resource
+				if (resource === 'tax') {
+					if (operation === 'calculate') {
+						const state = this.getNodeParameter('state', i) as string;
+						const premium = this.getNodeParameter('premium', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i) as IDataObject;
 
-					const body: IDataObject = {
-						state,
-						premium,
-					};
+						const body: IDataObject = {
+							state,
+							premium,
+						};
 
-					// Add optional parameters if provided
-					if (additionalOptions.wet_marine !== undefined) {
-						body.wet_marine = additionalOptions.wet_marine;
+						// Add optional parameters if provided
+						if (additionalOptions.wet_marine !== undefined) {
+							body.wet_marine = additionalOptions.wet_marine;
+						}
+						if (additionalOptions.fire_insurance !== undefined) {
+							body.fire_insurance = additionalOptions.fire_insurance;
+						}
+						if (additionalOptions.electronic_filing !== undefined) {
+							body.electronic_filing = additionalOptions.electronic_filing;
+						}
+						if (additionalOptions.fire_marshal_rate !== undefined && additionalOptions.fire_marshal_rate !== 0) {
+							body.fire_marshal_rate = additionalOptions.fire_marshal_rate;
+						}
+						if (additionalOptions.medical_malpractice !== undefined) {
+							body.medical_malpractice = additionalOptions.medical_malpractice;
+						}
+						if (additionalOptions.workers_comp !== undefined) {
+							body.workers_comp = additionalOptions.workers_comp;
+						}
+						if (additionalOptions.year !== undefined) {
+							body.year = additionalOptions.year;
+						}
+						if (additionalOptions.new_business !== undefined) {
+							body.new_business = additionalOptions.new_business;
+						}
+
+						const response = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'surplusLinesApi',
+							{
+								method: 'POST',
+								url: 'https://api.surpluslinesapi.com/v1/calculate',
+								body,
+								json: true,
+							},
+						);
+
+						returnData.push({
+							json: response as IDataObject,
+							pairedItem: { item: i },
+						});
 					}
-					if (additionalOptions.fire_insurance !== undefined) {
-						body.fire_insurance = additionalOptions.fire_insurance;
+				}
+
+				// Rate resource
+				if (resource === 'rate') {
+					if (operation === 'getCurrent') {
+						const stateFilter = this.getNodeParameter('stateFilter', i, '') as string;
+
+						let url = 'https://api.surpluslinesapi.com/v1/rates';
+						if (stateFilter) {
+							url += `?state=${encodeURIComponent(stateFilter)}`;
+						}
+
+						const response = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'surplusLinesApi',
+							{
+								method: 'GET',
+								url,
+								json: true,
+							},
+						);
+
+						returnData.push({
+							json: response as IDataObject,
+							pairedItem: { item: i },
+						});
+					} else if (operation === 'getHistorical') {
+						const state = this.getNodeParameter('historicalState', i) as string;
+						const date = this.getNodeParameter('historicalDate', i) as string;
+
+						const url = `https://api.surpluslinesapi.com/v1/historical-rates?state=${encodeURIComponent(state)}&date=${encodeURIComponent(date)}`;
+
+						const response = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'surplusLinesApi',
+							{
+								method: 'GET',
+								url,
+								json: true,
+							},
+						);
+
+						returnData.push({
+							json: response as IDataObject,
+							pairedItem: { item: i },
+						});
 					}
-					if (additionalOptions.electronic_filing !== undefined) {
-						body.electronic_filing = additionalOptions.electronic_filing;
+				}
+
+				// State resource
+				if (resource === 'state') {
+					if (operation === 'getAll') {
+						const response = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'surplusLinesApi',
+							{
+								method: 'GET',
+								url: 'https://api.surpluslinesapi.com/v1/states',
+								json: true,
+							},
+						);
+
+						returnData.push({
+							json: response as IDataObject,
+							pairedItem: { item: i },
+						});
 					}
-					if (additionalOptions.fire_marshal_rate !== undefined && additionalOptions.fire_marshal_rate !== 0) {
-						body.fire_marshal_rate = additionalOptions.fire_marshal_rate;
-					}
-					if (additionalOptions.medical_malpractice !== undefined) {
-						body.medical_malpractice = additionalOptions.medical_malpractice;
-					}
-					if (additionalOptions.workers_comp !== undefined) {
-						body.workers_comp = additionalOptions.workers_comp;
-					}
-					if (additionalOptions.year !== undefined) {
-						body.year = additionalOptions.year;
-					}
-					if (additionalOptions.new_business !== undefined) {
-						body.new_business = additionalOptions.new_business;
-					}
-
-					const response = await this.helpers.httpRequestWithAuthentication.call(
-						this,
-						'surplusLinesApi',
-						{
-							method: 'POST',
-							url: 'https://api.surpluslinesapi.com/v1/calculate',
-							body,
-							json: true,
-						},
-					);
-
-					returnData.push({
-						json: response as IDataObject,
-						pairedItem: { item: i },
-					});
-				} else if (operation === 'getRates') {
-					const stateFilter = this.getNodeParameter('stateFilter', i, '') as string;
-
-					let url = 'https://api.surpluslinesapi.com/v1/rates';
-					if (stateFilter) {
-						url += `?state=${encodeURIComponent(stateFilter)}`;
-					}
-
-					const response = await this.helpers.httpRequestWithAuthentication.call(
-						this,
-						'surplusLinesApi',
-						{
-							method: 'GET',
-							url,
-							json: true,
-						},
-					);
-
-					returnData.push({
-						json: response as IDataObject,
-						pairedItem: { item: i },
-					});
-				} else if (operation === 'getStates') {
-					const response = await this.helpers.httpRequestWithAuthentication.call(
-						this,
-						'surplusLinesApi',
-						{
-							method: 'GET',
-							url: 'https://api.surpluslinesapi.com/v1/states',
-							json: true,
-						},
-					);
-
-					returnData.push({
-						json: response as IDataObject,
-						pairedItem: { item: i },
-					});
-				} else if (operation === 'getHistoricalRates') {
-					const state = this.getNodeParameter('historicalState', i) as string;
-					const date = this.getNodeParameter('historicalDate', i) as string;
-
-					const url = `https://api.surpluslinesapi.com/v1/historical-rates?state=${encodeURIComponent(state)}&date=${encodeURIComponent(date)}`;
-
-					const response = await this.helpers.httpRequestWithAuthentication.call(
-						this,
-						'surplusLinesApi',
-						{
-							method: 'GET',
-							url,
-							json: true,
-						},
-					);
-
-					returnData.push({
-						json: response as IDataObject,
-						pairedItem: { item: i },
-					});
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {
