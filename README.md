@@ -83,92 +83,45 @@ Calculate surplus lines tax for a specific state and premium amount.
 }
 ```
 
-### Get Rates
+### Get Rate
 
-Get current tax rates for all states or a specific state.
-
-**Optional Parameters:**
-- **State Filter**: Filter rates for a specific state (leave empty for all states)
-
-**Example Response (All States):**
-
-```json
-{
-  "success": true,
-  "count": 53,
-  "data": [
-    {
-      "state": "Alabama",
-      "tax_rate": 0.0375,
-      "stamping_fee_rate": 0.002,
-      "notes": "Rounded to nearest penny"
-    },
-    {
-      "state": "Texas",
-      "tax_rate": 0.0485,
-      "stamping_fee_rate": 0.0018,
-      "notes": "State-specific rounding"
-    }
-    // ... 51 more states
-  ]
-}
-```
-
-**Example Response (Single State):**
-
-```json
-{
-  "success": true,
-  "count": 1,
-  "data": [
-    {
-      "state": "Texas",
-      "tax_rate": 0.0485,
-      "stamping_fee_rate": 0.0018,
-      "notes": "State-specific rounding"
-    }
-  ]
-}
-```
-
-### Get States
-
-Get a list of all supported states/jurisdictions.
-
-**No Parameters Required**
-
-**Example Response:**
-
-```json
-{
-  "success": true,
-  "count": 53,
-  "data": [
-    "Alabama",
-    "Alaska",
-    "Arizona",
-    // ... 50 more states/territories
-  ]
-}
-```
-
-### Get Historical Rates
-
-Get the tax rate that was in effect for a specific state on a given date. Useful for auditing, compliance verification, and analyzing past policy calculations.
+Get the current or historical tax rate for a specific state. Automatically falls back to current rates if historical data is unavailable.
 
 **Required Parameters:**
 - **State**: Select from all 50 U.S. states plus DC, Puerto Rico, and Virgin Islands
 
 **Optional Parameters:**
-- **Date**: Date in YYYY-MM-DD format. Defaults to today's date if not provided.
+- **Date**: Date in YYYY-MM-DD format for historical rates. Leave empty for current rates.
 
-**Example Response:**
+**Example Response (Current Rate):**
+
+```json
+{
+  "success": true,
+  "state": "Texas",
+  "query_date": "2026-02-12",
+  "rate": {
+    "tax_rate": 0.0485,
+    "stamping_fee": 0.0018,
+    "filing_fee": null,
+    "service_fee": null,
+    "surcharge": null,
+    "regulatory_fee": null,
+    "effective_from": "2020-01-01",
+    "effective_to": null,
+    "legislative_source": "Texas Insurance Code § 225.006",
+    "confidence": "high"
+  }
+}
+```
+
+**Example Response (Historical Rate with Fallback):**
 
 ```json
 {
   "success": true,
   "state": "Iowa",
-  "query_date": "2025-06-15",
+  "query_date": "2020-01-01",
   "rate": {
     "tax_rate": 0.01,
     "stamping_fee": 0.002,
@@ -176,13 +129,45 @@ Get the tax rate that was in effect for a specific state on a given date. Useful
     "service_fee": null,
     "surcharge": null,
     "regulatory_fee": null,
-    "effective_from": "2024-01-01",
-    "effective_to": "2025-12-31",
+    "effective_from": "2019-01-01",
+    "effective_to": "2023-12-31",
     "legislative_source": "Iowa Code § 515.138",
     "confidence": "high"
-  }
+  },
+  "fallback_used": false,
+  "fallback_message": null
 }
 ```
+
+**Automatic Fallback:**
+
+If historical data is unavailable for the requested date, the API automatically returns the current rate with a helpful message:
+
+```json
+{
+  "success": true,
+  "state": "Texas",
+  "query_date": "2010-01-01",
+  "rate": {
+    "tax_rate": 0.0485,
+    "stamping_fee": 0.0018,
+    // ... current rate data
+  },
+  "fallback_used": true,
+  "fallback_message": "Historical data not available for this date. Returning current rate."
+}
+```
+
+### Calculate Historical Tax
+
+The **Calculate Tax** operation also supports historical calculations. Simply provide an `effective_date` parameter to calculate taxes using rates that were in effect on that date.
+
+**Example:**
+- State: Texas
+- Premium: 10,000
+- Effective Date: 2020-01-01
+
+The API will use the tax rates that were in effect on January 1, 2020 for the calculation. If historical data is unavailable, it automatically falls back to current rates with a notification.
 
 ## Why Use Surplus Lines API?
 

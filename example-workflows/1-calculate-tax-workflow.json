@@ -1,0 +1,85 @@
+{
+  "name": "Example: Calculate Surplus Lines Tax",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "d89c5c3e-88f1-4e19-9d5e-8f3a1b2c4d5e",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "tax",
+        "operation": "calculate",
+        "state": "Texas",
+        "premium": 10000,
+        "additionalFields": {}
+      },
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Calculate Tax",
+      "type": "n8n-nodes-surplus-lines-undtec.surplusLinesApi",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ],
+      "credentials": {
+        "surplusLinesApi": {
+          "id": "1",
+          "name": "Surplus Lines API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the response from Calculate Tax node\nconst response = $input.all()[0].json;\n\n// Format the output for display\nreturn [\n  {\n    json: {\n      state: response.state,\n      premium: response.premium,\n      sl_tax: response.taxes.sl_tax,\n      tax_rate: response.taxes.tax_rate,\n      stamping_fee: response.taxes.stamping_fee,\n      stamping_fee_rate: response.taxes.stamping_fee_rate,\n      total_tax: response.total_tax,\n      total_due: response.total_due,\n      message: `Calculated surplus lines tax for ${response.state}: $${response.total_tax}`\n    }\n  }\n];"
+      },
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "Format Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Calculate Tax",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Tax": {
+      "main": [
+        [
+          {
+            "node": "Format Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-02-12T12:00:00.000Z",
+  "versionId": "1"
+}

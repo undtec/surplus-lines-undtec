@@ -1,0 +1,84 @@
+{
+  "name": "Example: Get Surplus Lines Rate",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "e1f2a3b4-c5d6-7890-abcd-ef2345678901",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "rate",
+        "operation": "getRate",
+        "state": "Texas",
+        "additionalFields": {}
+      },
+      "id": "f2a3b4c5-d6e7-8901-bcde-f23456789012",
+      "name": "Get Current Rate",
+      "type": "n8n-nodes-surplus-lines-undtec.surplusLinesApi",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ],
+      "credentials": {
+        "surplusLinesApi": {
+          "id": "1",
+          "name": "Surplus Lines API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the response from Get Rate node\nconst response = $input.all()[0].json;\n\n// Format the output for display\nreturn [\n  {\n    json: {\n      state: response.state,\n      query_date: response.query_date,\n      tax_rate: response.rate.tax_rate,\n      tax_rate_percentage: (response.rate.tax_rate * 100).toFixed(2) + '%',\n      stamping_fee: response.rate.stamping_fee,\n      stamping_fee_percentage: response.rate.stamping_fee ? (response.rate.stamping_fee * 100).toFixed(3) + '%' : 'N/A',\n      effective_from: response.rate.effective_from,\n      effective_to: response.rate.effective_to || 'Current',\n      legislative_source: response.rate.legislative_source,\n      fallback_used: response.fallback_used || false,\n      message: response.fallback_used \n        ? `Fallback used: ${response.fallback_message}` \n        : `Retrieved current rate for ${response.state}`\n    }\n  }\n];"
+      },
+      "id": "a3b4c5d6-e7f8-9012-cdef-123456789012",
+      "name": "Format Rate Info",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Get Current Rate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current Rate": {
+      "main": [
+        [
+          {
+            "node": "Format Rate Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-02-12T12:00:00.000Z",
+  "versionId": "1"
+}
